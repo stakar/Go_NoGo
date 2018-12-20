@@ -8,3 +8,4 @@ NBS Presentation
 # ToDo
 Must add training session (stimuli + feedback)
 I must add a little bit of comments and documentation.
+Change a litlle bit stimuli; 4 blocks with different stimuli

@@ -6,4 +6,5 @@ In this script I adapted the experiment for children. It was task given me durin
 NBS Presentation 
 
 # ToDo
+Must add training session (stimuli + feedback)
 I must add a little bit of comments and documentation.

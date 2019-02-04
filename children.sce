@@ -51,11 +51,11 @@ array{
 
 picture { 
 	# instrukcja na początek bloku
-	#text{caption = "Witaj w badaniu. Zapoznaj się z bodźcami. \n Kiedy będziesz gotowy, kliknij spację";
-	#	font = "Times New Roman";
-	#	font_size = 36;
-	#};
-	#x = 0; y = 340;
+#	text{caption = "Witaj w badaniu. Zapoznaj się z bodźcami. \n Kiedy będziesz gotowy, kliknij spację";
+#		font = "Times New Roman";
+#		font_size = 36;
+#	};
+#	x = 0; y = 340;
 	text{
 		caption = "Nie klikaj na znak";
 		font = "Times New Roman";
@@ -114,9 +114,9 @@ picture{} blank; # pusty ekran
 
 trial{
 	# instrukcja na początek bloku
-	#all_responses = true;
-	trial_duration = forever;
-	trial_type = first_response;
+	all_responses = true;
+	trial_duration = 3000000;
+	trial_type = specific_response;
 	terminator_button = 2;
 	
 	picture instrukcja_blok_pic; 

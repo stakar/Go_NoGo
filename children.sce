@@ -1,4 +1,4 @@
-active_buttons = 1;
+active_buttons = 2;
 response_matching = simple_matching;
 default_all_responses = false;
 default_font_size = 160;
@@ -7,7 +7,7 @@ default_text_color = 25, 25, 25;
 
 begin;
 
-# poniżej zdefiniowane obiekty będą
+# ponizej zdefiniowane obiekty będą
 # modyfikowane z poziomu PCL
 
 # --- obiekty text ---
@@ -32,57 +32,80 @@ text {
 bitmap {filename = "rakieta.png";} go_stimuli_pic;
 bitmap {filename = "ufo.png";} no_go_stimuli_pic;
 
+array{
+	bitmap {filename = "rakieta.png"; preload = false; }; 
+	bitmap {filename = "star_go.png";	 preload = false; };
+	bitmap {filename = "car1_go.png"; preload = false; };
+} graphics_go;
+
+array{
+	bitmap {filename = "ufo.png"; 	preload = false;	};
+	bitmap {filename = "heart_no_go.png";	 preload = false; };
+	bitmap {filename = "car1_no_go.png";	 preload = false; };
+} graphics_no_go;
 
 # --- obiekty picture ---
 
-picture {
-	#Pierwszy obrazek - znak GO
-	background_color = 222, 222, 222;
-	bitmap go_stimuli_pic;
-	x=0; y=0;
-} znak_pic_go;
 
-picture {
-	background_color = 222, 222, 222;
-	bitmap no_go_stimuli_pic;
-	x=0;y=0;
-} znak_pic_no_go;
 
 
 picture { 
 	# instrukcja na początek bloku
+	#text{caption = "Witaj w badaniu. Zapoznaj się z bodźcami. \n Kiedy będziesz gotowy, kliknij spację";
+	#	font = "Times New Roman";
+	#	font_size = 36;
+	#};
+	#x = 0; y = 340;
 	text{
-		caption = "nie reaguj na znak";
+		caption = "Nie klikaj na znak";
 		font = "Times New Roman";
 		font_size = 48;
 	};
-	x = -300; y = 180;
+	x = -400; y = 170;
 	
 	text{
-		caption = "reaguj na znak";
+		caption = "Klikaj na znak";
 		font = "Times New Roman";
 		font_size = 48;
 	};
-	x = 300; y = 180;
+	x = 400; y = 170;
 
-	bitmap no_go_stimuli_pic; x = -300; y = -180;
-	bitmap go_stimuli_pic; x = 300; y = -180;
 	
 } instrukcja_blok_pic;
 
 picture {
 	# koniec pierwszej części
 	text{
-		caption = "To już koniec pierwszej części";
+		caption = "To już koniec";
 		font = "Times New Roman";
 		font_size = 48;
 	};
 	x = 0; y=0;
 } koniec_pic;
+	
+picture {
+	#Pierwszy obrazek - znak GO
+	background_color = 222, 222, 222;
+} znak_pic_go;
+
+picture {
+	background_color = 222, 222, 222;
+} znak_pic_no_go;
 
 
 picture{} blank; # pusty ekran
 
+ picture {  
+      # placeholder - set by PCL
+      box { height = 1; width = 1; color = 0,0,0; };
+      x = 0; y = 0;
+   } stimuli_go;
+
+ picture {  
+      # placeholder - set by PCL
+      box { height = 1; width = 1; color = 0,0,0; };
+      x = 0; y = 0;
+   } stimuli_no_go;
 
 # ---------------------
 # --- obiekty trial ---
@@ -91,26 +114,32 @@ picture{} blank; # pusty ekran
 
 trial{
 	# instrukcja na początek bloku
-	#trial_duration = 30000;
-	trial_duration = 3000;
+	#all_responses = true;
+	trial_duration = forever;
+	trial_type = first_response;
+	terminator_button = 2;
 	
-	picture instrukcja_blok_pic;
-	time = 0; duration = 2500;
+	picture instrukcja_blok_pic; 
+#	time = 0; duration = 12500;
 	
-	picture blank;
-	time = 2500; duration = 300;
-	
+#	picture blank;
+#	time = 1250; duration = 1000;
 } instrukcja_blok_trial;
 
 trial{
+	picture blank;
+	time = 1250; duration = 1000;
+		}blank_trial;
+
+trial{
 	# koniec pierwszej części
-	trial_duration = 5000;
+	trial_duration = 50000;
 	picture koniec_pic;
 } koniec_trial;
 
 	
 trial{
-	# główny trial - wyświetlenie cyfry
+	# głowny trial - wyswietlenie cyfry
 	
 	trial_duration = 1250;
 	
@@ -133,9 +162,9 @@ trial{
 
 begin_pcl;
 
-# wczytaj bodźce i przerwy
+# wczytaj bodzce i przerwy
 int quantityStimuli;
-quantityStimuli = 120;
+quantityStimuli = 138;
 array<string> stimSign[quantityStimuli];
 array<int> przerwy[quantityStimuli];
 input_file in2 = new input_file;
@@ -143,10 +172,6 @@ string go;
 go = "GO";
 string no_go;
 no_go = "NO_GO";
-
-go_stimuli_pic.load();
-no_go_stimuli_pic.load();
-
 
 in2.open("przerwy_ms.txt");
 loop
@@ -172,7 +197,7 @@ end;
 loop
 	int i = 1
 until
-	i > 40
+	i > 46
 begin
 	int which;
 	which = random(1,quantityStimuli);
@@ -182,26 +207,51 @@ begin
 	end;
 end;
 
-
 in2.close();
 
 # deklaracje zmiennych
 int fontNumber;
 int stimNumber = 1;
 string znak;
-string current_no_go;
+int current_go;
 int przerwa;
 
+array<string>go_names[]={"go1","go2","go3"};
+array<string>no_go_names[]={"no_go1","no_go2","no_go3"};
+
+
+array<int> no_go_objects[] = {0, 1, 2, 3, 0, 3, 2, 1};    # cyfry no-go dla każdego bloku
+
+###############################
 #Instrukcja na początku badania
+###############################
 
+#####################
+#Prezentacja bodźców#
+#####################
+int y = 0;
+string name_trial_go = "trial_";
+string name_trial_no_go = "trial_";
+array<int> proba[] = {1,2,3};
+
+proba.shuffle();
+y = proba[1];
+
+name_trial_go.append(go_names[y]);
+
+name_trial_no_go.append(no_go_names[y]);
+
+graphics_go[y].load();
+graphics_no_go[y].load();
+instrukcja_blok_pic.add_part(graphics_no_go[y],-400,-180);
+instrukcja_blok_pic.add_part(graphics_go[y ],400,-180);
 instrukcja_blok_trial.present();
-
-#Prezentacja bodźców
+blank_trial.present();
 
 loop 
 	int t = 1
 until
-	t > 120
+	t > 10
 begin
 	
 	# weź znak i długość przerwy
@@ -214,17 +264,19 @@ begin
 	
 	#Zaprezentuj znak GO 
 	if znak == "GO" then
-		# no-go
-		cyfra_stimev.set_stimulus(znak_pic_go);
+		graphics_go[y].load();
+		stimuli_go.set_part(1,graphics_go[y]);
+		cyfra_stimev.set_stimulus(stimuli_go);
 		cyfra_stimev.set_target_button(0);
 		cyfra_stimev.set_response_active(true);
-		cyfra_stimev.set_event_code("no-go")
+		cyfra_stimev.set_event_code(name_trial_go);
 	#Zaprezentuj znaj NO-GO
 	else
-		# go
-		cyfra_stimev.set_stimulus(znak_pic_no_go);
+		graphics_no_go[y].load();
+		stimuli_no_go.set_part(1,graphics_no_go[y]);
+		cyfra_stimev.set_stimulus(stimuli_no_go);
 		cyfra_stimev.set_target_button(1);
-		cyfra_stimev.set_event_code("go")
+		cyfra_stimev.set_event_code(name_trial_no_go);
 	end;
 	
 	my_trial.set_duration(przerwa + 250);
@@ -232,5 +284,60 @@ begin
 	t = t + 1;
 end;
 
+stimSign.shuffle();
+
+loop 
+	int blok = 1
+until
+	blok > 3
+begin
+	
+	current_go = blok;
+	graphics_go[current_go].load();
+	graphics_no_go[current_go].load();
+	instrukcja_blok_pic.add_part(graphics_no_go[current_go],-400,-180);
+	instrukcja_blok_pic.add_part(graphics_go[current_go],400,-180);
+	instrukcja_blok_trial.present();
+	blank_trial.present();
+	
+	stimNumber = 1;
+	loop 
+		int t = 1
+	until
+		t > (quantityStimuli-1)
+		#t > 2
+	begin
+		
+		# weź znak i długość przerwy
+		znak = stimSign[stimNumber];
+		
+		cyfra_txt.set_caption(znak);
+		cyfra_txt.redraw();
+		przerwa = przerwy[stimNumber];
+		stimNumber = stimNumber + 1;
+		
+		#Zaprezentuj znak GO 
+		if znak == "GO" then
+			graphics_go[current_go].load();
+			stimuli_go.set_part(1,graphics_go[current_go]);
+			cyfra_stimev.set_stimulus(stimuli_go);
+			cyfra_stimev.set_target_button(0);
+			cyfra_stimev.set_response_active(true);
+			cyfra_stimev.set_event_code(go_names[current_go])
+		#Zaprezentuj znaj NO-GO
+		else
+			graphics_no_go[current_go].load();
+			stimuli_no_go.set_part(1,graphics_no_go[current_go]);
+			cyfra_stimev.set_stimulus(stimuli_no_go);
+			cyfra_stimev.set_target_button(1);
+			cyfra_stimev.set_event_code(no_go_names[current_go])
+		end;
+		
+		my_trial.set_duration(przerwa + 250);
+		my_trial.present();
+		t = t + 1;
+	end;
+	blok = blok + 1
+end;
 # zakończenie
 koniec_trial.present();

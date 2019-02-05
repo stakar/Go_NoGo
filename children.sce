@@ -215,7 +215,7 @@ int current_go;
 int przerwa;
 
 array<string>go_names[]={"go1","go2","go3"};
-array<string>no_go_names[]={"no_go1","no_go2","no_go3"};
+array<string>no_go_names[]={"ng1","ng2","ng3"};
 
 
 array<int> no_go_objects[] = {0, 1, 2, 3, 0, 3, 2, 1};    # cyfry no-go dla każdego bloku
@@ -228,8 +228,8 @@ array<int> no_go_objects[] = {0, 1, 2, 3, 0, 3, 2, 1};    # cyfry no-go dla każ
 #Prezentacja bodźców#
 #####################
 int y = 0;
-string name_trial_go = "trial_";
-string name_trial_no_go = "trial_";
+string name_trial_go = "t_";
+string name_trial_no_go = "t_";
 array<int> proba[] = {1,2,3};
 
 proba.shuffle();
@@ -314,7 +314,7 @@ begin
 		przerwa = przerwy[stimNumber];
 		stimNumber = stimNumber + 1;
 		
-		#Zaprezentuj znak GO 
+		#Zaprezentuj znak NO-GO 
 		if znak == no_go then
 			graphics_no_go[current_go].load();
 			stimuli_no_go.set_part(1,graphics_no_go[current_go]);
@@ -323,7 +323,7 @@ begin
 			cyfra_stimev.set_response_active(true);
 			cyfra_stimev.set_event_code(no_go_names[current_go])
 
-		#Zaprezentuj znaj NO-GO
+		#Zaprezentuj znaj GO
 		else
 			graphics_go[current_go].load();
 			stimuli_go.set_part(1,graphics_go[current_go]);

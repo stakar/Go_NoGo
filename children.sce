@@ -1,10 +1,8 @@
 active_buttons = 2;
 response_matching = simple_matching;
-default_all_responses = false;
 default_font_size = 160;
 default_background_color = 222, 222, 222;
 default_text_color = 25, 25, 25;
-
 begin;
 
 # ponizej zdefiniowane obiekty będą
@@ -262,21 +260,21 @@ begin
 	przerwa = przerwy[stimNumber];
 	stimNumber = stimNumber + 1;
 	
-	#Zaprezentuj znak GO 
-	if znak == "GO" then
-		graphics_go[y].load();
-		stimuli_go.set_part(1,graphics_go[y]);
-		cyfra_stimev.set_stimulus(stimuli_go);
-		cyfra_stimev.set_target_button(0);
-		cyfra_stimev.set_response_active(true);
-		cyfra_stimev.set_event_code(name_trial_go);
-	#Zaprezentuj znaj NO-GO
-	else
+	#Zaprezentuj znak NO-GO 
+	if znak == no_go then
 		graphics_no_go[y].load();
 		stimuli_no_go.set_part(1,graphics_no_go[y]);
 		cyfra_stimev.set_stimulus(stimuli_no_go);
-		cyfra_stimev.set_target_button(1);
+		cyfra_stimev.set_target_button(0);
+		cyfra_stimev.set_response_active(true);
 		cyfra_stimev.set_event_code(name_trial_no_go);
+	#Zaprezentuj znaj GO
+	else
+		graphics_go[y].load();
+		stimuli_go.set_part(1,graphics_go[y]);
+		cyfra_stimev.set_stimulus(stimuli_go);
+		cyfra_stimev.set_target_button(1);
+		cyfra_stimev.set_event_code(name_trial_go);
 	end;
 	
 	my_trial.set_duration(przerwa + 250);
@@ -317,20 +315,21 @@ begin
 		stimNumber = stimNumber + 1;
 		
 		#Zaprezentuj znak GO 
-		if znak == "GO" then
-			graphics_go[current_go].load();
-			stimuli_go.set_part(1,graphics_go[current_go]);
-			cyfra_stimev.set_stimulus(stimuli_go);
-			cyfra_stimev.set_target_button(0);
-			cyfra_stimev.set_response_active(true);
-			cyfra_stimev.set_event_code(go_names[current_go])
-		#Zaprezentuj znaj NO-GO
-		else
+		if znak == no_go then
 			graphics_no_go[current_go].load();
 			stimuli_no_go.set_part(1,graphics_no_go[current_go]);
 			cyfra_stimev.set_stimulus(stimuli_no_go);
-			cyfra_stimev.set_target_button(1);
+			cyfra_stimev.set_target_button(0);
+			cyfra_stimev.set_response_active(true);
 			cyfra_stimev.set_event_code(no_go_names[current_go])
+
+		#Zaprezentuj znaj NO-GO
+		else
+			graphics_go[current_go].load();
+			stimuli_go.set_part(1,graphics_go[current_go]);
+			cyfra_stimev.set_stimulus(stimuli_go);
+			cyfra_stimev.set_target_button(1);
+			cyfra_stimev.set_event_code(go_names[current_go]);
 		end;
 		
 		my_trial.set_duration(przerwa + 250);

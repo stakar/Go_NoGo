@@ -162,7 +162,10 @@ begin_pcl;
 
 # wczytaj bodzce i przerwy
 int quantityStimuli;
+
+#quantityStimuli to ilosc bodzcow ogolnie; trzeba ja zmienic, jesli chcesz inna ilosc bodzcow
 quantityStimuli = 138;
+
 array<string> stimSign[quantityStimuli];
 array<int> przerwy[quantityStimuli];
 input_file in2 = new input_file;
@@ -192,9 +195,12 @@ begin
 	i = i + 1;
 end;
 
+#Ponizej jest przygotwoanie bodzcow no-go
+
 loop
 	int i = 1
 until
+#trzeba zmienic ponizsza wartosc i by ustalic ile ma byc bodzcow no-go
 	i > 46
 begin
 	int which;

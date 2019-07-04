@@ -1,8 +1,15 @@
+#GO-NOGO with negative feedback
 active_buttons = 2;
+button_codes = 7,20;
 response_matching = simple_matching;
+default_all_responses = false;
 default_font_size = 160;
 default_background_color = 222, 222, 222;
 default_text_color = 25, 25, 25;
+write_codes = true;		
+pulse_width = 10;				# pulse value in ms 
+response_logging = log_active;
+response_port_output = true;	
 begin;
 
 # ponizej zdefiniowane obiekty będą
@@ -105,6 +112,33 @@ picture{} blank; # pusty ekran
       x = 0; y = 0;
    } stimuli_no_go;
 
+
+picture {
+	# feedback - zysk za blok
+	text{
+		caption = "Twoj zysk w bloku";
+		font = "Times New Roman";
+		font_size = 48;
+	};
+	x = 0; y = 100;
+	
+	text{
+		caption = "0 Euro 0 Cent";
+		font = "Times New Roman";
+		font_size = 48;
+	} zysk_txt;
+	x = 0; y = 0;
+	
+	text{
+		caption = "(Übrig geblieben: 0 Euro 0 Cent)";
+		font = "Times New Roman";
+		font_size = 48;
+	} zysk_do_tej_pory_txt;
+	x = 0; y = -150;
+	
+} feedback_pic;
+
+
 # ---------------------
 # --- obiekty trial ---
 # ---------------------
@@ -154,17 +188,79 @@ trial{
 }my_trial;
 
 
+
+trial{
+	# feedback - zysk za blok
+	all_responses = true;
+	trial_duration = 3000000;
+	trial_type = specific_response;
+	terminator_button = 2;
+	picture feedback_pic;
+} feedback_blok_trial;
+
+
+
+
 # --- --- --- --- ---
 # --- --- PCL --- ---
 # --- --- --- --- ---
 
 begin_pcl;
 
-# wczytaj bodzce i przerwy
-int quantityStimuli;
 
-#quantityStimuli to ilosc bodzcow ogolnie; trzeba ja zmienic, jesli chcesz inna ilosc bodzcow
-quantityStimuli = 138;
+
+
+sub
+	string zysk_w_zlotych(int grosze)
+begin
+	int gr = 1;
+	if	(grosze >= 0 && grosze <= 14) then
+		gr = 1;
+	end;
+	if	(grosze >= 15 && grosze <= 29) then
+		gr = 2;
+	end;
+	if	(grosze >= 30 && grosze <= 44) then
+		gr = 3;
+	end;
+	if	(grosze >= 45 && grosze <= 59) then
+		gr = 4;
+	end;
+	if	(grosze >= 60 && grosze <= 74) then
+		gr = 5;
+	end;
+	if	(grosze >= 75 && grosze <= 89) then
+		gr = 6;
+	end;
+	if	(grosze >= 90 && grosze <= 104) then 
+		gr = 7;
+	end;
+	if	(grosze >= 105 && grosze <= 119) then
+		gr = 8;
+	end;
+	if	(grosze >= 120 && grosze <= 134) then
+		gr = 9;
+	end;
+	if	(grosze >= 135 && grosze <= 150) then
+		gr = 10;
+	end;
+	
+	string zwz = string(gr);
+	return zwz;
+end;
+
+
+# deklaracje zmiennych - liczenie zysku / straty
+stimulus_data last;
+int zysk_total = 0; # początkowa kwota (gr) - to przy karach 4/16 gr
+int strata_blok;
+string komunikat_o_zysku;
+
+# wczytaj bodzce i przerwy
+
+int quantityStimuli;
+quantityStimuli = 90;
+
 
 array<string> stimSign[quantityStimuli];
 array<int> przerwy[quantityStimuli];
@@ -195,13 +291,10 @@ begin
 	i = i + 1;
 end;
 
-#Ponizej jest przygotwoanie bodzcow no-go
-
 loop
 	int i = 1
 until
-#trzeba zmienic ponizsza wartosc i by ustalic ile ma byc bodzcow no-go
-	i > 46
+	i > 30
 begin
 	int which;
 	which = random(1,quantityStimuli);
@@ -216,26 +309,26 @@ in2.close();
 # deklaracje zmiennych
 int fontNumber;
 int stimNumber = 1;
+int n_code_port = 0;
 string znak;
 int current_go;
 int przerwa;
 
+array<int> buttons[2] = {7,20};
+
 array<string>go_names[]={"go1","go2","go3"};
-array<string>no_go_names[]={"ng1","ng2","ng3"};
+array<string>no_go_names[]={"no_go1","no_go2","no_go3"};
 
 
 array<int> no_go_objects[] = {0, 1, 2, 3, 0, 3, 2, 1};    # cyfry no-go dla każdego bloku
 
-###############################
-#Instrukcja na początku badania
-###############################
+################################
+#Instrukcja na początku badania#
+################################
 
-#####################
-#Prezentacja bodźców#
-#####################
 int y = 0;
-string name_trial_go = "t_";
-string name_trial_no_go = "t_";
+string name_trial_go = "trial_";
+string name_trial_no_go = "trial_";
 array<int> proba[] = {1,2,3};
 
 proba.shuffle();
@@ -272,21 +365,34 @@ begin
 		stimuli_no_go.set_part(1,graphics_no_go[y]);
 		cyfra_stimev.set_stimulus(stimuli_no_go);
 		cyfra_stimev.set_target_button(0);
+		buttons[1] = 55;
+		response_manager.set_button_codes(buttons);
 		cyfra_stimev.set_response_active(true);
 		cyfra_stimev.set_event_code(name_trial_no_go);
+		cyfra_stimev.set_port_code(51);
 	#Zaprezentuj znaj GO
 	else
 		graphics_go[y].load();
 		stimuli_go.set_part(1,graphics_go[y]);
 		cyfra_stimev.set_stimulus(stimuli_go);
 		cyfra_stimev.set_target_button(1);
+		buttons[1] = 56;
+		response_manager.set_button_codes(buttons);
 		cyfra_stimev.set_event_code(name_trial_go);
+		cyfra_stimev.set_port_code(52);
 	end;
 	
 	my_trial.set_duration(przerwa + 250);
 	my_trial.present();
 	t = t + 1;
+	n_code_port = 5;
 end;
+
+
+
+#####################
+#Prezentacja bodźców#
+#####################
 
 stimSign.shuffle();
 
@@ -295,7 +401,6 @@ loop
 until
 	blok > 3
 begin
-	
 	current_go = blok;
 	graphics_go[current_go].load();
 	graphics_no_go[current_go].load();
@@ -309,8 +414,8 @@ begin
 		int t = 1
 	until
 		t > (quantityStimuli-1)
-		#t > 2
 	begin
+		n_code_port = 10*blok;
 		
 		# weź znak i długość przerwy
 		znak = stimSign[stimNumber];
@@ -320,28 +425,59 @@ begin
 		przerwa = przerwy[stimNumber];
 		stimNumber = stimNumber + 1;
 		
-		#Zaprezentuj znak NO-GO 
+		#Zaprezentuj znak GO 
 		if znak == no_go then
 			graphics_no_go[current_go].load();
 			stimuli_no_go.set_part(1,graphics_no_go[current_go]);
 			cyfra_stimev.set_stimulus(stimuli_no_go);
-			cyfra_stimev.set_target_button(0);
+			cyfra_stimev.set_target_button(0);			
+			buttons[1] = (n_code_port + 5);
+			response_manager.set_button_codes(buttons);
 			cyfra_stimev.set_response_active(true);
-			cyfra_stimev.set_event_code(no_go_names[current_go])
+			cyfra_stimev.set_event_code(no_go_names[current_go]);
+			cyfra_stimev.set_port_code(n_code_port + 1);
 
-		#Zaprezentuj znaj GO
+		#Zaprezentuj znaj NO-GO
 		else
 			graphics_go[current_go].load();
 			stimuli_go.set_part(1,graphics_go[current_go]);
 			cyfra_stimev.set_stimulus(stimuli_go);
+			buttons[1] = (n_code_port + 6);
+			response_manager.set_button_codes(buttons);
 			cyfra_stimev.set_target_button(1);
 			cyfra_stimev.set_event_code(go_names[current_go]);
+			cyfra_stimev.set_port_code(n_code_port + 2);
 		end;
 		
 		my_trial.set_duration(przerwa + 250);
 		my_trial.present();
+		
+				# policz stratę (jeśli jest)
+		last = stimulus_manager.last_stimulus_data();
+		# MISS - pominięte go, false_alarm - wciśnięcie no-go
+		if last.type() == last.MISS then
+			strata_blok = strata_blok + 1;
+		elseif last.type() == last.FALSE_ALARM then
+			strata_blok = strata_blok + 3;
+			# dla OTHER reaction_time() zwraca 0
+			# więc ma szansę się wykonać tylko dla HIT
+		end;
+		
+		
 		t = t + 1;
 	end;
+	int zysk_w_bloku = 150-strata_blok;
+	# policz gratyfikację
+	zysk_total = zysk_total + zysk_w_bloku;
+
+	# wyświetl stratę
+	komunikat_o_zysku = zysk_w_zlotych(zysk_w_bloku);
+	zysk_txt.set_caption("Zdobyłeś " + komunikat_o_zysku + " naklejek");
+	zysk_txt.redraw();
+	komunikat_o_zysku = "(Twój zysk w naklejkach ogółem : " + zysk_w_zlotych(zysk_total) + ")";
+	zysk_do_tej_pory_txt.set_caption(komunikat_o_zysku);
+	zysk_do_tej_pory_txt.redraw();
+	feedback_blok_trial.present(); # feedback_trial
 	blok = blok + 1
 end;
 # zakończenie

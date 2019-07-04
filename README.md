@@ -5,7 +5,5 @@ In this script I adapted the experiment for children. It was task given me durin
 # Technology
 NBS Presentation 
 
-# ToDo
-Must add training session (stimuli + feedback)
-I must add a little bit of comments and documentation.
-Change a litlle bit stimuli; 4 blocks with different stimuli
+# Progress
+Code is finished, now experiment is going. 
